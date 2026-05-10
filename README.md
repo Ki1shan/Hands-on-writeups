@@ -1,231 +1,396 @@
-# 🚨 Zorvyn Internship Scam — Technical Investigation Report
+# 🛡️ Hands-On Security Writeups
 
-![Type](https://img.shields.io/badge/type-investigation-red)
-![Status](https://img.shields.io/badge/status-exposed-critical)
-![Method](https://img.shields.io/badge/method-web%20analysis-orange)
-![Verdict](https://img.shields.io/badge/verdict-SCAM%20CONFIRMED-red)
+![Type](https://img.shields.io/badge/type-hands--on%20lab-blue)
+![Writeups](https://img.shields.io/badge/writeups-5-brightgreen)
+![Tools](https://img.shields.io/badge/tools-Nmap%20%7C%20Nessus%20%7C%20Wireshark%20%7C%20UFW-orange)
+![Status](https://img.shields.io/badge/status-active-brightgreen)
+![Focus](https://img.shields.io/badge/focus-blue%20team%20%2B%20recon-blueviolet)
 
-> A step-by-step technical investigation exposing a fake cybersecurity internship scam — using web analysis, parameter tampering, and backend verification to confirm fraud.
-
----
-
-## ⚠️ Disclaimer
-
-This report is published for **educational awareness and public warning** only. No harmful or unauthorized actions were performed during this investigation. All findings were obtained through passive observation and legitimate parameter testing on systems presented to me as an internee.
+> A collection of practical cybersecurity lab writeups covering network scanning, firewall hardening, phishing analysis, traffic analysis, and vulnerability assessment — all performed in real environments with documented evidence.
 
 ---
 
 ## Overview
 
-What initially appeared to be a legitimate Cybersecurity Analyst internship at **"Zorvyn FinTech Pvt. Ltd."** was identified through systematic technical analysis as a well-structured internship scam.
-
-The scam combines:
-- Social engineering (fake offer letters, manager communication, dashboards)
-- Client-side web manipulation (no real backend)
-- A reimbursement-based payment trap targeting students
-
-This repository contains the full investigation — email trails, screenshots, and technical analysis — to help others recognize and avoid similar scams.
+This repository contains hands-on technical writeups from real lab exercises. Each writeup includes the objective, methodology, tools used, actual scan/capture files, screenshots, and security analysis — not just theory, but real execution with documented results.
 
 ---
 
-## Evidence Files
+## Writeups
 
-| File | Description |
-|------|-------------|
-| `Your Offer Letter...pdf` | Fake offer letter (₹45,000/month salary promised) |
-| `Welcome to the Team...pdf` | Onboarding email establishing false legitimacy |
-| `Please Complete Your Welcome Kit Form...pdf` | Data collection under fake onboarding |
-| `Your Project Overview and Training Task...pdf` | Task assignment leading to software purchase |
-| `Follow Up on Pending Task and Software Reimbursement.pdf` | Reimbursement promise to justify payment |
-| `Your Welcome Kit Has Been Ordered...pdf` | Fake logistics to build trust |
-| `Your Welcome Kit is Packed and Ready to Ship...pdf` | Continued fake delivery simulation |
-| `Your Signed Offer Letter Submission is Pending.pdf` | Pressure tactic for personal data |
-| Screenshots | Platform analysis — URL tampering, localhost exposure, fake modules |
+| # | Topic | Tools | Key Finding |
+|---|-------|-------|------------|
+| 1 | [Network Scanning](#1-network-scanning) | Nmap, Wireshark | SMB + MySQL exposed across NAT and Bridged networks |
+| 2 | [Firewall Hardening](#2-firewall-hardening) | UFW, Windows Defender | Telnet (port 23) blocked on Linux + Windows |
+| 3 | [Phishing Analysis](#3-phishing-analysis) | MessageHeader, URLVoid, IPVoid | 2 phishing campaigns dissected — Wells Fargo + Microsoft |
+| 4 | [Traffic Analysis](#4-traffic-analysis) | Wireshark, tcpdump | Unencrypted HTTP traffic and DNS recon patterns identified |
+| 5 | [Vulnerability Assessment](#5-vulnerability-assessment) | Nessus Essentials | Critical Node.js CVEs (CVSS 9.8) on localhost + local machine |
 
 ---
 
-## Investigation Methodology
+## 1. Network Scanning
 
-Rather than blindly trusting the platform, I approached it as a penetration tester:
+**Folder:** `Network-Scanning/`
 
-- Observed system behavior and UI patterns
-- Analyzed URL structures and parameter handling
-- Tested parameter manipulation and access control
-- Verified backend presence through behavior analysis
-- Cross-checked email workflow and domain history
+### Objective
+Perform network reconnaissance using TCP SYN scanning across NAT and Bridged environments to identify active hosts, open ports, and exposed services.
 
----
+### Methodology
+- Tool: Nmap 7.95
+- Scan type: TCP SYN Scan (`-sS`)
+- Networks: NAT `10.0.2.0/24` and Bridged `192.168.1.0/24`
+- Traffic captured with Wireshark for analysis
 
-## Technical Findings
+### Key Findings
 
-### Finding 1 — Reimbursement-Based Payment Trap
-The company required interns to purchase software upfront and promised reimbursement through their portal.
+**NAT Network (10.0.2.0/24)**
 
-**Red flag:** Legitimate companies never require interns to make upfront purchases. Reimbursement promises with no paper trail or official policy documentation are a classic social engineering hook.
+| Host | Port | Service | Risk |
+|------|------|---------|------|
+| 10.0.2.2 | 135/tcp | MSRPC | Medium |
+| 10.0.2.2 | 445/tcp | SMB | High |
+| 10.0.2.2 | 3306/tcp | MySQL | High |
+| 10.0.2.2 | 9080/tcp | Web Service | Medium |
+| 10.0.2.3 | 53/tcp | DNS | Low |
 
----
+**Bridged Network (192.168.1.0/24)**
 
-### Finding 2 — URL-Based Identity Injection (Broken Access Control)
+| Host | Port | Service | Risk |
+|------|------|---------|------|
+| 192.168.1.1 | 53/tcp | DNS | Low |
+| 192.168.1.1 | 80/tcp | HTTP | Medium |
+| 192.168.1.1 | 443/tcp | HTTPS | Low |
+| 192.168.1.9 | 135/tcp | MSRPC | Medium |
+| 192.168.1.9 | 139/tcp | NetBIOS | High |
+| 192.168.1.9 | 445/tcp | SMB | High |
+| 192.168.1.9 | 3306/tcp | MySQL | High |
 
-The reimbursement portal passed full user identity through URL parameters:
+### Security Analysis
+- **SMB (445)** — susceptible to lateral movement and exploitation (EternalBlue, WannaCry)
+- **MySQL (3306)** — exposed database port risks unauthorized access if not properly secured
+- **HTTP (80)** — unencrypted communication, vulnerable to interception and MITM
+- **DNS (53)** — can be abused for reconnaissance and DNS-based data exfiltration
 
+### Files Included
 ```
-/reimbursements/approved?full_name=KISHAN&email=kishan@gmail.com&employee_id=ZFT-1234&software=...
-```
-
-**Test performed:** Modified `full_name`, `email`, and `employee_id` values directly in the URL.
-
-**Result:** Changes reflected instantly on the page — name, email, and amount all updated.
-
-**Impact:**
-- Zero backend validation
-- Fully client-side controlled system
-- Any user can impersonate any identity
-- Broken Access Control (OWASP A01)
-
----
-
-### Finding 3 — Localhost URL Exposure
-
-The platform leaked internal development URLs:
-
-```
-http://localhost:3003/...
+nat_scan.txt        → NAT network raw Nmap output
+nat_scan.xml        → NAT network XML format
+bridged_scan.txt    → Bridged network raw Nmap output
+nmap_scan.pcapng    → Wireshark packet capture of scan traffic
 ```
 
-**Impact:**
-- Development environment not separated from what users see
-- No proper production deployment exists
-- Strong indicator of a fake or unfinished backend
+### Tools Used
+- Nmap 7.95
+- Wireshark
 
 ---
 
-### Finding 4 — No Real Backend (SQL Injection Null Result)
+## 2. Firewall Hardening
 
-Standard SQL injection probes returned no errors and no unexpected behavior — not because of security, but because:
+**Folder:** `Firewall-Hardening/`
 
-> **There is no database to inject into.**
+### Objective
+Enhance system security by restricting insecure network services and validating firewall configurations across Linux (Kali) and Windows environments.
 
-The system is entirely client-side simulated. This confirms the absence of any real backend infrastructure.
+### Methodology
+- Blocked Telnet (port 23) on both platforms
+- Allowed SSH (port 22) on Linux
+- Validated rules by attempting Telnet connections
 
----
+### Linux — UFW (Kali)
 
-### Finding 5 — Fake Dashboard Modules
-
-| Module | Claimed Function | Reality |
-|--------|-----------------|---------|
-| Logistics | "Welcome kit shipped" | No tracking ID, no courier integration |
-| Webmail | Company inbox | "Activation in 7–8 days" — never activates |
-| Referrals | Referral system | Locked, depends on fake webmail |
-| Reimbursement | Payment portal | Client-side only, no real payment |
-
-Each module exists purely to build visual legitimacy — none have functional backends.
-
----
-
-### Finding 6 — Domain Rotation
-
-The platform shifted domains mid-engagement:
-
-```
-Original: zorvyn.org / zorvyn.co
-Shifted:  zorvyn.live
+```bash
+sudo ufw enable                    # Activate firewall
+sudo ufw status numbered           # View active rules
+sudo ufw deny 23                   # Block Telnet
+sudo ufw allow 22                  # Allow SSH
 ```
 
-**Significance:** Domain switching mid-operation is a common technique used by scam operators to evade detection, reset reputation, and avoid being flagged by search engines or fraud databases.
-
----
-
-### Finding 7 — Psychological Manipulation Sequence
-
-The scam follows a deliberate trust-building sequence before triggering the payment:
-
+**Validation result:**
 ```
-Step 1: Offer letter sent (₹45,000 salary)
-Step 2: Welcome email + manager introduction
-Step 3: Dashboard access granted
-Step 4: Welcome kit "ordered" and "shipped"
-Step 5: Task assigned (software required)
-Step 6: Software purchase requested
-Step 7: Reimbursement promised via fake portal
-Step 8: No payment made
+telnet localhost 23
+→ Connection failed: Connection refused  ✅
 ```
 
-Each step increases psychological investment before the financial trap is triggered.
+### Windows — Windows Defender Firewall
+- Created new Inbound Rule → Block port 23 (Telnet)
+- Rule name: "Block Telnet"
+- Applied to all profiles (Public, Private, Domain)
 
----
-
-## Technical Summary
-
-| Component | Claimed | Reality |
-|-----------|---------|---------|
-| Authentication | Secure login | Weak / bypassable |
-| Backend | Full web platform | Not present — client-side simulation |
-| Data Handling | Secure storage | URL parameters — no server validation |
-| Database | User records | Does not exist |
-| Logistics | Real courier | Fake tracking, no integration |
-| Webmail | Company email | Never activates |
-| Infrastructure | Production platform | Localhost leaked, unfinished |
-| Security | Enterprise-grade | Non-existent |
-
----
-
-## Impact Assessment
-
-**Severity: CRITICAL**
-
-- **Financial** — Students pay for software with no reimbursement
-- **Data** — Personal data (name, email, address, bank details) collected via fake forms
-- **Psychological** — Prolonged manipulation creates emotional investment before the trap triggers
-- **Reputational** — Fake employment records created in students' names
-
----
-
-## Verdict
-
+**Validation result:**
 ```
-⚠️  CONFIRMED INTERNSHIP SCAM
-
-This is not a legitimate company or internship program.
-
-Zorvyn FinTech Pvt. Ltd. operates a fully structured
-social engineering + payment exploitation scheme
-targeting cybersecurity students and job seekers.
+C:\Users\kisha> telnet localhost 23
+Connecting To localhost...Could not open connection to the host, 
+on port 23: Connect failed  ✅
 ```
 
+### Key Findings
+- Telnet (port 23) successfully blocked in both environments
+- SSH (port 22) remained accessible after hardening
+- Firewall rules effectively prevented unauthorized plaintext access
+
+### Security Analysis
+- Telnet transmits all data including credentials in plaintext — blocking it is critical
+- Replacing Telnet with SSH eliminates credential exposure risk
+- Proper firewall configuration directly reduces the attack surface
+
+### Files Included
+```
+firewall-ufw-commands    → UFW commands reference
+Windows-firewall         → Windows Firewall configuration notes
+ufw.png                  → UFW terminal output (rules active)
+telnet-localhost23.png   → Telnet connection refused on Linux
+block_telnet_.png        → Windows Defender block rule configured
+windows-inbound.png      → Windows inbound rules list
+```
+
+### Tools Used
+- UFW (Uncomplicated Firewall)
+- Windows Defender Firewall
+- Telnet (for validation testing)
+
 ---
 
-## Red Flags to Watch For
+## 3. Phishing Analysis
 
-If you encounter a similar internship offer, watch for:
+**Folder:** `Phishing-Analysis/`
 
-- Reimbursement required for any software or equipment
-- Offer letter with high salary but vague job scope
-- Portal where URL parameters control your displayed data
-- Webmail "activating in 7-8 days" that never activates
-- Welcome kit with no real tracking information
-- Domain that changes during your engagement
-- Manager communicates only via email, never video call
+### Objective
+Analyze phishing emails by examining headers, sender details, embedded links, and social engineering techniques to identify malicious indicators.
+
+### Methodology
+- Collected two phishing email samples
+- Extracted and analyzed email headers
+- Investigated sender domains and reply-to addresses
+- Traced origin IPs using MessageHeader analyzer
+- Validated malicious domains and IPs using URLVoid and IPVoid
 
 ---
 
-## Key Learnings
+### Case 1 — Wells Fargo Phishing
 
-- Always verify company registration and physical address independently
-- Test reimbursement portals — legitimate ones don't put your data in URLs
-- Localhost URLs leaking into production is an immediate red flag
-- A polished UI means nothing without a real backend
-- Social engineering attacks work by building trust over time before striking
+**Email subject:** *"Secure your WellsFargo Online Key"*
+
+**Header Analysis:**
+```
+From:        "Wells Fargo Alerts" <support@wellsfargo-support.net>
+Return-Path: bounces@phishing-site.com
+Received:    from shadyhosting.biz (91.234.56.78)
+X-Mailer:    Outlook Express (fake)
+Reply-To:    security@wellsfargo-secure.xyz
+```
+
+**Phishing Indicators:**
+
+| Indicator | Detail |
+|-----------|--------|
+| Domain mismatch | `wellsfargo-support.net` — not official Wells Fargo domain |
+| Malicious link | `http://cabinetkignima.com/Wellsfargo_keys_account5/page2.html` |
+| Insecure link | HTTP instead of HTTPS |
+| Origin server | `shadyhosting.biz` — IP confirmed blacklisted via IPVoid |
+| Urgency tactic | "Your security key has expired" |
+| Generic greeting | "Dear James" — scraped/random name |
+| Grammar errors | Multiple structural mistakes |
+
+---
+
+### Case 2 — Microsoft Account Phishing
+
+**Email subject:** *"Unusual sign-in activity"*
+
+**Header Analysis:**
+```
+From:        "Microsoft Team" <no-reply.msteam2@outlook.com>
+Return-Path: bounces@scam-server.ru
+Received:    from mail.scamhost.net (185.143.223.17)
+X-Mailer:    Some Phishing Kit v2.0
+Reply-To:    support@microsoft-security.xyz
+```
+
+**Phishing Indicators:**
+
+| Indicator | Detail |
+|-----------|--------|
+| Free email domain | `outlook.com` — not an official Microsoft domain |
+| Phishing kit exposed | `X-Mailer: Some Phishing Kit v2.0` visible in header |
+| Invalid IP in body | `293.09.101.9` — first octet exceeds valid IP range |
+| Fake phone number | `1-800-816-0380` — not a verified Microsoft number |
+| Urgency tactic | "Unusual sign-in from Russia" |
+| Suspicious reply-to | `microsoft-security.xyz` |
+| Hidden malicious CTA | "Review recent activity" button links to phishing page |
+
+---
+
+### Security Analysis
+- Attackers use domain spoofing to impersonate trusted brands
+- Social engineering (urgency + fear) drives victims to act without verifying
+- Header analysis reveals true origin even when display name looks legitimate
+- `X-Mailer` fields can expose phishing kit signatures
+
+### Files Included
+```
+wellsfargo.txt           → Wells Fargo email body + header + indicators
+Microsoft-phishing.txt   → Microsoft email body + header + indicators
+wellsfargo.png           → MessageHeader analysis screenshot
+windows-phishing.png     → Microsoft phishing header analysis screenshot
+```
+
+### Tools Used
+- MessageHeader Analyzer
+- URLVoid
+- IPVoid
+
+---
+
+## 4. Traffic Analysis
+
+**Folder:** `Traffic-Analysis/`
+
+### Objective
+Analyze captured network traffic using Wireshark to identify protocols, inspect packet flows, and detect potential suspicious or malicious activity.
+
+### Methodology
+- Captured live network traffic using Wireshark and tcpdump
+- Analyzed PCAP files for protocol distribution
+- Applied display filters to isolate specific traffic types
+- Followed TCP streams to reconstruct full communication sessions
+
+### Filters Applied
+```
+http    → HTTP request/response inspection
+dns     → DNS query and response analysis
+tcp     → Full TCP handshake and stream analysis
+```
+
+### Key Findings
+- **TCP** — Multiple active connections identified with full handshake visibility
+- **HTTP** — Unencrypted web traffic observed, exposing request content
+- **DNS** — Domain resolution queries visible, including timing and response data
+
+### Security Analysis
+- Unencrypted HTTP traffic exposes sensitive data to any network observer
+- DNS traffic reveals which domains a host is communicating with — useful for C2 detection
+- TCP stream reconstruction enables full session replay for incident investigation
+- Packet-level visibility is essential for anomaly detection and forensic analysis
+
+### Files Included
+```
+traffic-cap      → tcpdump capture reference
+traffic1.pcapng  → Wireshark packet capture file
+```
+
+### Tools Used
+- Wireshark
+- tcpdump
+
+---
+
+## 5. Vulnerability Assessment
+
+**Folder:** `Vulnerability-Assessment/`
+
+### Objective
+Identify, analyze, and validate system vulnerabilities using Tenable Nessus by performing local and network-based scans on systems running outdated software.
+
+### Methodology
+- Tool: Nessus Essentials (CVSS v3.0 scoring)
+- Scan type: Basic Network Scan
+- Targets scanned:
+  - **Localhost** — `127.0.0.1`
+  - **Local Machine** — `192.168.1.10`
+
+### Scan Results Summary
+
+| Target | Total Vulns | Critical | High | Medium | Info |
+|--------|------------|---------|------|--------|------|
+| 127.0.0.1 | 61 | 4 | 2 | — | 75 |
+| 192.168.1.10 | 59 | 1 | 3 | 1 | 1 |
+
+### Critical Finding — Node.js Multiple Vulnerabilities
+
+```
+Plugin ID : 190856
+Severity  : CRITICAL
+CVSS Score: 9.8
+Affected  : Node.js < 18.19.1 / < 20.11.1 / < 21.6.2
+Installed : Node.js 20.11.0
+```
+
+**CVEs Identified:**
+
+| CVE | Description | Impact |
+|-----|-------------|--------|
+| CVE-2024-21892 | Improper environment variable handling with elevated privileges | Privilege Escalation |
+| CVE-2024-22019 | HTTP chunked encoding → unbounded memory read | DoS |
+| CVE-2024-21896 | Buffer.from() path traversal via monkey-patching | Path Traversal |
+| CVE-2024-22017 | setuid() bypass — privileged operations without dropping privileges | Privilege Escalation |
+| CVE-2023-46809 | PKCS#1 timing side-channel in privateDecrypt() | RSA Key Recovery |
+| CVE-2024-21891 | Wildcard path traversal via --allow-fs-read | File System Access |
+
+### Remediation
+```
+Upgrade Node.js to:
+  → 18.19.1 or later
+  → 20.11.1 or later
+  → 21.6.2 or later
+```
+
+### Security Analysis
+- Critical vulnerabilities present on **both** targets — same outdated Node.js installation
+- CVSS 9.8 means near-maximum exploitability with network access
+- Privilege escalation CVEs are particularly dangerous on multi-user systems
+- RSA timing attack (CVE-2023-46809) enables remote key recovery against API endpoints
+
+### Files Included
+```
+Local_Machine_scan_gi4cv0.nessus  → Full Nessus scan export
+local-machine                     → Local machine scan notes
+localhost                         → Localhost scan notes
+localhost1.png                    → Localhost scan overview
+localhost2.png                    → Localhost critical finding detail
+localmachine1.png                 → Local machine vulnerability list
+localmachine2.png                 → Local machine critical CVE detail
+```
+
+### Tools Used
+- Nessus Essentials
+- CVSS v3.0 Scoring System
+
+---
+
+## Skills Demonstrated
+
+| Skill | Writeup |
+|-------|---------|
+| Network reconnaissance | Network Scanning |
+| Firewall rule management | Firewall Hardening |
+| Email header forensics | Phishing Analysis |
+| Social engineering identification | Phishing Analysis |
+| Packet capture and analysis | Traffic Analysis |
+| Vulnerability identification and CVE analysis | Vulnerability Assessment |
+| Remediation guidance | Vulnerability Assessment |
+
+---
+
+## Tools Used Across All Writeups
+
+- **Nmap** — network scanning and host discovery
+- **Wireshark / tcpdump** — packet capture and traffic analysis
+- **UFW** — Linux firewall management
+- **Windows Defender Firewall** — Windows firewall management
+- **Nessus Essentials** — vulnerability scanning and CVE identification
+- **MessageHeader Analyzer** — email header tracing
+- **URLVoid / IPVoid** — malicious domain and IP verification
 
 ---
 
 ## Author
 
 **Kishan N**
-Offensive Security Engineer | Cybersecurity Researcher
+Offensive Security Engineer | Blue Team Practitioner
 
-Investigated this scam using penetration testing methodology after recognizing suspicious patterns in the platform's behavior. Published publicly to protect other students from the same trap.
+Hands-on lab exercises covering core defensive and offensive security skills — from network recon to vulnerability assessment, all documented with real evidence.
 
 ---
 
-*Sometimes the most valuable security lessons don't come from a lab — they come from someone trying to scam you.*
+*Security is learned by doing — not just reading.*
