@@ -1,0 +1,101 @@
+WORKING AND UNDERSTANDING OF VPN:
+---------------------------------
+
+----------
+OBJECTIVE:
+----------
+To explore and verify the role of a Virtual Private Network (VPN) in securing internet communication, protecting identity, and encrypting traffic using hands-on analysis with tools like Wireshark.
+
+-----------
+TOOLS USED:
+-----------
+- ProtonVPN (Free Tier)
+- Kali Linux (Oracle VM)
+- Mozilla Firefox
+- Wireshark
+- whatismyipaddress.com
+- speedtest.net
+
+-------------------------------
+VPN SETUP & CONNECTION PROCESS:
+-------------------------------
+- Signed up on protonvpn.com using a secure email.
+- Installed ProtonVPN CLI on Kali Linux.
+- Initialized VPN configuration using protonvpn init.
+- Connected to the fastest server using protonvpn connect --fastest.
+- Verified VPN connection and tunneling.
+
+-------------------------------
+IP ADDRESS CHANGE VERIFICATION:
+-------------------------------
+1.Before VPN Connection:
+   - My real IP address and Indian location were publicly visible.
+
+2.After VPN Connection:
+   - IP address was masked.
+   - Location changed to a different country (Netherlands).
+3.Verification was done via whatismyipaddress.com.
+
+-------------------
+SPEED TEST RESULTS:
+-------------------
+1. Without VPN: Download speed was approximately 37.64 Mbps, and the upload speed was 40.17 Mbps.
+2. With VPN: Download speed dropped slightly to around 34.09 Mbps, and the upload speed was 37.25 Mbps.
+3. Minor speed reduction was observed, which is expected due to encryption overhead, but browsing remained smooth.
+
+------------------------------------------
+NETWORK TRAFFIC INSPECTION WITH WIRESHARK:
+------------------------------------------
+1. Steps Followed:
+    - Opened Wireshark and selected the appropriate network interface (eth0 before VPN; proton0 after VPN).
+    - Captured traffic while visiting whatsmyname.com and cybrary.com.
+    - Applied display filters like tls and ip.addr == MY_IP.
+    - Compared both captures for visible metadata and encryption status.
+
+2. Observations:
+    ->Before VPN:
+      - Destination IP addresses and website metadata were visible.
+      - Some domains and DNS queries appeared in plain text.
+
+    ->After VPN:
+      - All traffic was routed through tun0 (VPN tunnel).
+      - Data packets were encrypted using TLS.
+      - Domain names and IP metadata were no longer directly visible.
+      
+--------------------------------
+VPN SECURITY & PRIVACY FEATURES:
+--------------------------------
+- Uses AES-256 encryption to secure internet traffic.
+- Hides the real IP address and geographic location.
+- Prevents DNS leaks, ensuring no data is leaked to ISPs.
+- Maintains a strict no-logs policy to preserve user anonymity.
+- Protects user data on public Wi-Fi networks.
+- Offers a kill switch feature (in premium version) to block internet traffic if VPN disconnects unexpectedly.
+
+---------------------------
+VPN BENEFITS & LIMITATIONS:
+---------------------------
+BENEFITS:
+  1. All online traffic is encrypted, ensuring data confidentiality.
+  2. Real IP address and location are hidden from websites and trackers.
+  3. Helps bypass geographic restrictions and access blocked content.
+  4. Provides secure browsing experience on public Wi-Fi.
+  5. Prevents tracking from ISPs and third-party snoopers.
+
+LIMITATIONS:
+   1. Slight reduction in internet speed due to encryption.
+   2. Free version has access to limited servers and features.
+   3. Some websites and services may block known VPN IP addresses.
+   4. Command-line interface may not be user-friendly for beginners.
+   5. VPN must remain connected at all times for full protection.
+
+-----------
+CONCLUSION:
+-----------
+This experiment proved that ProtonVPN effectively masks identity, encrypts traffic, and prevents leaks. Wireshark confirmed the tunnel encryption by showing TLS packets on tun0. VPNs are vital tools for personal and professional cybersecurity, especially when using untrusted networks.
+
+
+
+
+
+

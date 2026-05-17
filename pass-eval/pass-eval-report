@@ -1,0 +1,108 @@
+PASSWORD STRENGTH EVALUATION REPORT:
+-------------------------------------
+ 1. Password : suraj123
+    Description : simple lowercase + number
+    Score(%) : 39%
+    Strength : Weak
+    Feedback : Lacks uppercase letters and symbols. Consider adding more character variety.
+---------------   
+ 2. Password : surajkish
+    Description : simple lowercase
+    Score(%) : 10%
+    Strength : Weak
+    Feedback : Only lowercase letters used. Add uppercase letters, numbers, and symbols
+---------------   
+ 3. Password : SURAJKISH
+    Description : Uppercase
+    Score(%) : 9%
+    Strength : Weak
+    Feedback : Only uppercase letters used. Incorporate lowercase letters, numbers, and symbols.
+---------------   
+ 4. Password : Suraj123
+    Description : Uppercase + lowercase + numbers
+    Score(%) : 65%
+    Strength : Strong
+    Feedback : Mix of character types. Adding symbols can enhance strength.
+---------------
+ 5. Password : Suraj@123
+    Description : Uppercase + lowercase + symbol + numbers
+    Score(%) : 83%
+    Strength : Very Strong
+    Feedback : Well-balanced password. Increasing length can further improve strength.
+---------------
+ 6. Password : $ur@j!2025
+    Description : symbol + lowercase + numbers
+    Score(%) : 97%
+    Strength : Very Strong
+    Feedback : Use of symbols and numbers. Adding uppercase letters can enhance strength.
+---------------    
+ 7. Password : $Ur@j!2025
+    Description : symbol + uppercase + lowercase + numbers
+    Score(%) : 100%
+    Strength : Very Strong
+    Feedback : Very well mixed of character types and length.
+---------------    
+ 8. Password : &zM!9hK@uL3*BfQw
+    Description : symbol + uppercase + lowercase + numbers with strong combo 
+    Score(%) : 100%
+    Strength : Very Strong
+    Feedback : Outstanding password with high complexity and length.
+    
+---------------------------------------------   
+BEST PRACTICES FOR CREATING STRONG PASSWORDS:
+---------------------------------------------
+1. Use a Mix of Character Types: Combine uppercase, lowercase, numbers, and symbols in every password.
+2. Ensure Sufficient Length: Use passwords that are at least 12–16 characters long.
+3. Avoid Common Words: Don’t use names, dictionary words, or simple sequences like 123 or abcd.
+4. Avoid Repeating or Sequential Characters: Repetitions (aaa) or sequences (1234, abcd) lower password strength.
+5. Use Symbols Creatively: Replace letters with symbols (@ instead of a, $ instead of s) to add complexity.
+6. Avoid Personal Info: Do not include birthdates, names, or easily guessable data.
+7. Change Passwords Regularly: Especially for important accounts, update them every few months.
+8. Use a Password Manager: To store and generate strong, unique passwords for each site or service.
+9. Don’t Reuse Passwords: Always use a different password for every account or platform.
+
+---------------------------------
+TIPS LEARNED FROM THE EVALUATION:
+---------------------------------
+1. Only lowercase passwords are very weak, even if long (e.g., surajkish scored just 10%).
+2. Uppercase-only passwords like SURAJKISH scored low due to lack of variety.
+3. Adding numbers improves scores moderately (suraj123 scored 39%).
+4. Combining uppercase, lowercase, and numbers gives a decent score (Suraj123 got 58%).
+5. Including a symbol like in Suraj@123 significantly boosts the score to 78%.
+6. Strong combos of all character types (e.g., $Ur@j!2025) pushed scores above 85%.
+7. Random long strings with high entropy (e.g., &zM!9hK@uL3*BfQw) reached 98%, showing excellent strength.
+
+---------------------------------------
+RESEARCH ABOUT COMMON PASSWORD ATTACKS:
+---------------------------------------
+1. BRUTE FORCE ATTACK:
+   - An attacker tries every possible combination of characters until the correct password is found.
+   - Time-consuming but effective against short or simple passwords.
+   - Defense: Use long passwords with varied characters; enable account lockouts after failed attempts.
+---------------------
+2. DICTIONARY ATTACK:
+   - Uses a predefined list of common words and phrases (like “password”, “123456”, etc.) to guess the password.
+   - Very effective against passwords that use simple, common words.
+   - Defense: Avoid real words or names; add random characters.
+-----------------------
+3. CREDENTIAL STUFFING:
+   - Attackers use leaked username-password pairs from one service to access accounts on others.
+   - Defense: Don’t reuse passwords across sites.
+-----------------
+4. HYBRID ATTACK:
+   - Combines dictionary and brute force methods (e.g., tries "password1", "Password123!").
+   - Defense: Use unpredictable patterns and symbols.
+----------------------
+5. SOCIAL ENGINEERING:
+   - Tricks the user into revealing their password using phishing or other deceptive tactics.
+   - Defense: Be cautious of suspicious emails, links, and messages.
+   
+-----------------------------------------
+HOW PASSWORD COMPLEXITY AFFECTS SECURITY:
+-----------------------------------------
+1. Higher complexity = greater resistance to brute force and dictionary attacks.
+2. Passwords with mixed character types (uppercase, lowercase, numbers, symbols) take significantly longer to crack.
+3. Longer passwords exponentially increase the number of combinations needed to guess correctly.
+4. Unpredictable passwords (not based on real words or patterns) reduce vulnerability to dictionary and hybrid attacks.
+5. Simple or reused passwords are easy targets and commonly exploited in cyber breaches.
+
