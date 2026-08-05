@@ -16,6 +16,12 @@ This repository contains hands-on technical writeups from real lab exercises. Ea
 
 ---
 
+## Images 
+
+<img width="1100" height="2564" alt="Hands-on_All_Images_Collage" src="https://github.com/user-attachments/assets/c883d6b3-e1eb-4e58-8726-68d47ca94da3" />
+
+---
+
 ## Writeups
 
 | # | Topic | Tools | Key Finding |
